@@ -1,0 +1,257 @@
+
+/*bvq
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+
+package PongG;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.*;
+
+
+/**
+ *
+ * @author Natalie Foster
+ */
+public class PongG extends JPanel implements ActionListener, KeyListener  {
+
+    //global variables
+    boolean TitleScreen = true; 
+    boolean playmode = false;
+    boolean gameover=false;
+    int Pad1=745;
+    int y=0;
+    int Pad2=20;
+    int z=0;
+    int vela=0;
+    int velz=0;
+    int velx=0;
+    int vely=0;
+    int i=0;
+    int j=0;
+    int boundary =25;
+    boolean side = true;
+    boolean bottom = true;
+    static int p1score=0;
+    static int p2score=0;
+ 
+    //timer for panels
+    Timer t=new Timer(10,this);
+   
+    public PongG()
+    {
+        t.start();
+        addKeyListener(this);
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+    }
+    
+   //movement of the PongBall
+    public void pongBall() { 
+ 
+        if(bottom==true){
+        j++;
+        }
+        if(bottom==false){
+        j--;
+        }
+        if(j==0){
+        bottom=true;
+        }
+        if (i==0){
+        p2score++; //score for player 2 if ball goes past player 1 panel
+        i=450;//reset ball after score
+        j=250;
+        }   
+        if (side==true){
+            i++;
+        }
+        if (side==false){
+            i--;
+        }
+        if (j==getHeight()-boundary){
+            bottom=false;
+        }
+        if (i==getWidth()-boundary){
+        p1score++; //score for player 1 if ball goes past player 2 panel
+        i=250; //reset ball after score
+        j=150;
+        }
+        //if statement for ball to hid panels 
+        if((i+25)==Pad1 &&(j>= y && (j+ 25)<=(y+120))){
+            side = false;
+        }
+        if((i)==Pad2 &&(j>= z &&(j+25)<=(z+120))){
+            side = true;
+        }
+        //If statements to terminate game if either player reaches a score of 3
+        if(p1score==3){
+               playmode=false;
+               gameover=true;
+        } 
+        if(p2score==3){
+               playmode=false;
+               gameover=true;
+    }}
+        
+    /**
+     * @param args the command line arguments
+     * @throws java.lang.InterruptedException
+     */
+    public static void main(String[] args) throws InterruptedException {
+        // TODO code application logic here
+    
+    //Frame for actual game
+    JFrame window=new JFrame("Natalie's Pong Game");
+    PongG p1=new PongG();
+    window.add(p1);
+    window.pack();
+    window.setSize(800,600);
+    p1.setBackground(Color.darkGray);
+    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    window.setVisible(true);
+
+    //while game is playing ball to be repainted and ball speed
+       while(true){
+       p1.pongBall();
+       p1.repaint();
+       Thread.sleep(5);
+
+    }}
+  
+    
+    
+    @Override
+    //How panels should perform for (user) players
+    public void actionPerformed(ActionEvent e) {
+     
+        Pad1+=velx;
+        y+=vely;
+        Pad2+=vela;
+        z+=velz;
+        repaint();
+     
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+     
+    }
+
+    @Override
+    
+    public void keyPressed(KeyEvent e) {
+    int code= e.getKeyCode(); 
+    //Press spacebar to start game and scores set to zero
+    if (TitleScreen) {
+    if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+        TitleScreen = false;
+        playmode = true;
+        p1score=0;
+        p2score=0;
+    }
+    }
+    //When player key A and Z control panel for player 1 and 
+    //up and down keys control player 2 panel
+    else if(playmode){
+   //Player 1 panel can only move up and down
+        if(code==KeyEvent.VK_A){
+         vela=0;
+         velz=-10;
+     }
+         if(code==KeyEvent.VK_Z){
+         vela=0;
+         velz=+10;
+     }
+ //Player 2 panel can only move up and down
+         if(code==KeyEvent.VK_UP){
+         velx=0;
+         vely=-10;
+       }
+       if(code==KeyEvent.VK_DOWN){
+         velx=0;
+         vely=+10;
+       }
+     }}
+    
+  
+
+    @Override
+    
+    //Panels for either payer to stop when key released
+    public void keyReleased(KeyEvent e) {
+       if (playmode) {
+        velx=0;
+        vely=0;
+        
+        vela=0;
+        velz=0;
+  }}
+    
+   
+ public void Player1(Graphics g){
+  }
+ 
+ public void Player2(Graphics g){
+ }
+ 
+ 
+    @Override
+    //created objects for game
+    public void paintComponent(Graphics g){
+    super.paintComponent(g);
+    g.setColor(Color.WHITE);
+    
+    //title screen image
+        if (TitleScreen) {
+            g.setColor(Color.white);
+            g.setFont(new Font(Font.DIALOG, Font.BOLD, 38));
+            g.drawString("Natalie's Pong Game", 200, 100);
+            g.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
+            g.drawString("Press 'Spacebar' to play.",200, 300);
+        }
+        else if (playmode) {
+   //Panels for player 1 and player 2
+    PongG panel1=new PongG();
+    PongG panel2=new PongG();
+ 
+    panel1.Player1(g);
+    panel2.Player2(g);
+  
+    g.setColor(Color.blue);
+    g.fillRect(Pad1, y, 20, 120); 
+   
+    g.setColor(Color.GREEN);
+    g.fillRect(Pad2, z, 20, 120);
+     
+    //the ball
+    g.setColor(Color.WHITE);
+    g.fillOval(i, j, 25, 25);
+    
+    //the diving line between player one and player 2
+    for (int lineY = 0; lineY < getHeight(); lineY += 50) {
+    g.drawLine(400, lineY, 400, lineY+30);
+    }
+    //display of the scores for player 1 and player 2
+        g.setFont(new Font(Font.DIALOG, Font.BOLD, 36));
+        g.drawString(String.valueOf(p1score), 200, 50);
+        g.drawString(String.valueOf(p2score), 600, 50);      
+        }
+        else if (gameover) {
+     //end of game winner declaration
+           g.setFont(new Font(Font.DIALOG, Font.BOLD, 36));       
+           g.setFont(new Font(Font.DIALOG, Font.BOLD, 36));
+           if(p1score>p2score){
+           g.drawString("Player 1 Wins!", 200, 200);
+           }
+           else {
+           g.drawString("Player 2 Wins!", 200, 200);
+     
+    }}}}
+
